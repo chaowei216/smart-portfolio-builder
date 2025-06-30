@@ -1,0 +1,47 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/career_canvas_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:12345}
+    hikari:
+      maximum-pool-size: 5
+      connection-timeout: 20000
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        default_schema: public
+
+# spring doc
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /api-docs
+
+# Open API
+open:
+  api:
+    title: Smart Portfolio Builder API Document
+    description: API Backend Document for SPB project
+    version: v1.0.0
+
+# JWT
+jwt:
+  secretKey: G2PaZgX9HcYPoyByu48NJpmmStYfdk1t0JZtGhlk5oY=
+  expiration: 10000
+  refreshDuration: 10000
+  issuer: localhost:8080
+  audience: localhost:5173
+
+# Logging
+logging:
+  level:
+    org:
+      springdoc: DEBUG
+

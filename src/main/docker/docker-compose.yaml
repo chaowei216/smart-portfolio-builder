@@ -1,0 +1,19 @@
+name: spb
+services:
+  spb:
+    container_name: spb
+    build:
+      context: ../../../
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://dpg-d1fp47umcj7s73btt79g-a:5432/spb_db_0z5x
+      SPRING_DATASOURCE_USERNAME: spb_db_0z5x_user
+      SPRING_DATASOURCE_PASSWORD: 8vqne6bRRb3C8VQzM2HaORzvAcRu0vPm
+    networks:
+      - default
+
+networks:
+  default:
+    name: spb
