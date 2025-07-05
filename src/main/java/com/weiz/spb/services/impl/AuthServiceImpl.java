@@ -11,10 +11,9 @@ import com.weiz.spb.exception.UnauthorizedException;
 import com.weiz.spb.repositories.UserRepository;
 import com.weiz.spb.security.jwt.TokenProvider;
 import com.weiz.spb.services.AuthService;
+import com.weiz.spb.services.EmailService;
 import com.weiz.spb.services.dto.Response;
-import com.weiz.spb.services.dto.request.auth.LoginRequestDTO;
-import com.weiz.spb.services.dto.request.auth.RefreshTokenRequestDTO;
-import com.weiz.spb.services.dto.request.auth.RegistrationRequestDTO;
+import com.weiz.spb.services.dto.request.auth.*;
 import com.weiz.spb.services.dto.response.auth.AuthenticationResponseDTO;
 import com.weiz.spb.services.dto.response.auth.GetAuthenticatedUserDTO;
 import jakarta.validation.constraints.NotNull;
@@ -37,6 +36,7 @@ public class AuthServiceImpl implements AuthService {
     private final ObjectMapper objectMapper;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final TokenProvider tokenProvider;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -92,6 +92,7 @@ public class AuthServiceImpl implements AuthService {
         var createdUser = objectMapper.convertValue(request, User.class);
         createdUser.setPasswordHash(passwordHash);
         createdUser.setLastLogin(LocalDateTime.now());
+        createdUser.setVerified(false);
 
         userRepository.save(createdUser);
 
@@ -176,5 +177,91 @@ public class AuthServiceImpl implements AuthService {
         var result = objectMapper.convertValue(user, GetAuthenticatedUserDTO.class);
 
         return Response.success(result, AppConst.GET_SUCCESS);
+    }
+
+    @Override
+    public Response<Void> verifyEmail(VerificationRequestDTO request) {
+
+        // find user
+        final var user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NotFoundException("User with email: " + request.getEmail() + AppConst.NOT_FOUND.getMessage()));
+
+        // check status
+        if (user.isVerified()) {
+            throw new ResourceConflictException(AppConst.AUTH_VERIFIED_EMAIL);
+        }
+
+        // generate random token 6-digits
+        final var token = tokenProvider.generateVerifyToken(user);
+
+        emailService.sendTokenVerificationEmail(user, token.getTokenValue());
+
+        return Response.success(null, AppConst.AUTH_SEND_VERIFY_CODE_SUCCESS);
+    }
+
+    @Override
+    public Response<Void> verifyPassword(VerificationRequestDTO request) {
+
+        // get user by email
+        final var user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NotFoundException("User with email: " + request.getEmail() + AppConst.NOT_FOUND.getMessage()));
+
+        // check status
+        if (!user.isVerified()) {
+            throw new BadRequestException(AppConst.AUTH_UNVERIFIED_EMAIL);
+        }
+
+        // generate random token 6-digits
+        final var token = tokenProvider.generateForgotPasswordCode(user);
+
+        // send email
+        emailService.sendTokenForgotPassword(user, token.getTokenValue());
+
+        return Response.success(null, AppConst.AUTH_SEND_VERIFY_CODE_SUCCESS);
+    }
+
+    @Override
+    @Transactional
+    public Response<Void> confirmEmail(ConfirmEmailRequestDTO request) {
+
+        // get user by email
+        final var user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NotFoundException("User with email: " + request.getEmail() + AppConst.NOT_FOUND.getMessage()));
+
+        // check status
+        if (user.isVerified()) {
+            throw new ResourceConflictException(AppConst.AUTH_VERIFIED_EMAIL);
+        }
+
+        // check token
+        tokenProvider.validateDbToken(request.getCode());
+
+        // update status
+        user.setVerified(true);
+
+        // save to db
+        userRepository.save(user);
+
+        return Response.success(null, AppConst.AUTH_VERIFY_EMAIL_SUCCESS);
+    }
+
+    @Override
+    @Transactional
+    public Response<Void> resetPassword(ResetPasswordRequestDTO request) {
+
+        // get user by email
+        final var user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NotFoundException("User with email: " + request.getEmail() + AppConst.NOT_FOUND.getMessage()));
+
+        // check token
+        tokenProvider.validateDbToken(request.getCode());
+
+        // update password
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+
+        // save to db
+        userRepository.save(user);
+
+        return Response.success(null, AppConst.AUTH_RESET_PASSWORD_SUCCESS);
     }
 }

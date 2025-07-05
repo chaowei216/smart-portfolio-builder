@@ -9,7 +9,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
@@ -34,7 +34,7 @@ open:
 # JWT
 jwt:
   secretKey: G2PaZgX9HcYPoyByu48NJpmmStYfdk1t0JZtGhlk5oY=
-  expiration: 10000
+  expiration: 900
   refreshDuration: 10000
   issuer: localhost:8080
   audience: localhost:5173

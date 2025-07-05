@@ -2,10 +2,7 @@ package com.weiz.spb.controller;
 
 import com.weiz.spb.services.AuthService;
 import com.weiz.spb.services.dto.Response;
-import com.weiz.spb.services.dto.request.auth.GetAuthenticatedUserRequestDTO;
-import com.weiz.spb.services.dto.request.auth.LoginRequestDTO;
-import com.weiz.spb.services.dto.request.auth.RefreshTokenRequestDTO;
-import com.weiz.spb.services.dto.request.auth.RegistrationRequestDTO;
+import com.weiz.spb.services.dto.request.auth.*;
 import com.weiz.spb.services.dto.response.auth.AuthenticationResponseDTO;
 import com.weiz.spb.services.dto.response.auth.GetAuthenticatedUserDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -72,7 +69,7 @@ public class AuthController {
         return authService.getMe();
     }
 
-    @Operation(summary = "[GUEST]_Logout", description = "Logout user from system")
+    @Operation(summary = "[USER]_Logout", description = "Logout user from system")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully"),
             @ApiResponse(responseCode = "400", description = "Bad request"),
@@ -82,5 +79,50 @@ public class AuthController {
     @PostMapping(path = "/logout")
     public Response<Void> logout() {
         return authService.logout();
+    }
+
+    @Operation(summary = "[USER]_verify email", description = "Send code to email for verification")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping(path = "/verify-email")
+    public Response<Void> verifyEmail(@Valid @RequestBody VerificationRequestDTO request) {
+        return authService.verifyEmail(request);
+    }
+
+    @Operation(summary = "[GUEST]_forgot password", description = "Send code to email for verification")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    @PostMapping(path = "/forgot-password")
+    public Response<Void> forgotPassword(@Valid @RequestBody VerificationRequestDTO request) {
+        return authService.verifyPassword(request);
+    }
+
+    @Operation(summary = "[GUEST]_reset password", description = "Change new password")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    @PostMapping(path = "/reset-password")
+    public Response<Void> resetPassword(@Valid @RequestBody ResetPasswordRequestDTO request) {
+        return authService.resetPassword(request);
+    }
+
+    @Operation(summary = "[USER]_confirm email", description = "Confirm email")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    @PostMapping(path = "/confirm-email")
+    public Response<Void> confirmEmail(@Valid @RequestBody ConfirmEmailRequestDTO request) {
+        return authService.confirmEmail(request);
     }
 }

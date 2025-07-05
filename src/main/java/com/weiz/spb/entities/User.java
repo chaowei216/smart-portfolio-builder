@@ -19,7 +19,8 @@ import java.util.List;
 @Table(
         name = "users",
         indexes = {
-                @Index(name = "idx_email", columnList = "email", unique = true)
+                @Index(name = "idx_email", columnList = "email", unique = true),
+                @Index(name = "idx_username", columnList = "username", unique = true)
         }
 )
 @Entity
@@ -32,6 +33,9 @@ public class User extends AbstractEntity<String> {
 
     @Column(nullable = false, unique = true, length = 50)
     private String email;
+
+    @Column(nullable = false, unique = true)
+    private String username;
 
     @Column(nullable = false)
     private String passwordHash;

@@ -1,7 +1,5 @@
 package com.weiz.spb.security;
 
-import com.weiz.spb.exception.ForbiddenException;
-import com.weiz.spb.exception.UnauthorizedException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

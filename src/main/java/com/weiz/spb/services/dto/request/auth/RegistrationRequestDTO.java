@@ -16,6 +16,9 @@ public class RegistrationRequestDTO {
     @Email(message = "Email must be in valid form")
     private String email;
 
+    @NotBlank(message = "Username is required")
+    private String username;
+
     @NotBlank(message = "Password is required")
     @Size(min = 8, max = 20, message = "Password must be from 8 to 20 characters")
     private String password;

@@ -37,4 +37,15 @@ public final class AppConst {
     public static final String AUTH_TOKEN_INVALID = "Invalid token";
     public static final String AUTH_LOGOUT_SUCCESS = "Logout Successfully";
     public static final String AUTH_REFRESH_TOKEN_SUCCESS = "Refresh token successfully";
+    public static final String AUTH_VERIFIED_EMAIL = "Email is already verified";
+    public static final String AUTH_UNVERIFIED_EMAIL = "Email has not been verified";
+    public static final String AUTH_SEND_VERIFY_CODE_SUCCESS = "Send code to verify successfully";
+    public static final String AUTH_VERIFY_EMAIL_SUCCESS = "Verify email successfully";
+    public static final String AUTH_RESET_PASSWORD_SUCCESS = "Reset password successfully";
+
+    // Mail
+    public static final String EMAIL_SEND = "luutrieuvi2003@gmail.com";
+    public static final String VERIFY_EMAIL_SUBJECT = "Verify Email";
+    public static final String FORGET_PASSWORD_SUBJECT = "Forgot Password";
+
 }
